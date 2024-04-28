@@ -19,6 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			</h1>
 		</header>
 	<?php endif; ?>
+	<?php echo 'hwllo' ?>
 
 	<div class="page-content">
 		<?php if ( have_posts() ) : ?>

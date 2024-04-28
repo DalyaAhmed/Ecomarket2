@@ -5,6 +5,8 @@
  * @package HelloElementor
  */
 
+
+require_once(get_template_directory() . "/setting.php");
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
@@ -263,3 +265,61 @@ if ( ! function_exists( 'hello_elementor_body_open' ) ) {
 		wp_body_open();
 	}
 }
+
+
+//Shortcode
+// Shortcode to display products from a specific category
+
+// Shortcode to display products from a specific category
+function category_products_shortcode($atts) {
+    // Shortcode attributes
+    $atts = shortcode_atts( array(
+        'category' => '',
+        'posts_per_page' => -1,
+    ), $atts );
+
+    // Get category ID from category slug
+    $category = get_term_by('slug', $atts['category'], 'product_cat');
+
+    // Initialize output
+    $output = '';
+
+    if ($category) {
+        // Query arguments
+        $args = array(
+            'post_type' => 'product',
+            'posts_per_page' => $atts['posts_per_page'],
+            'tax_query' => array(
+                array(
+                    'taxonomy' => 'product_cat',
+                    'field'    => 'id',
+                    'terms'    => $category->term_id,
+                ),
+            ),
+        );
+
+        // The Query
+        $query = new WP_Query($args);
+
+        // The Loop
+        if ($query->have_posts()) {
+            $output .= '<ul class="products">';
+            while ($query->have_posts()) {
+                $query->the_post();
+                global $product;
+                $output .= '<li>' . woocommerce_get_product_thumbnail() . '<a href="' . get_permalink() . '">' . get_the_title() . '</a>' . $product->get_price_html() . '</li>';
+            }
+            $output .= '</ul>';
+        } else {
+            $output = 'No products found';
+        }
+
+        // Restore original Post Data
+        wp_reset_postdata();
+    } else {
+        $output = 'Category not found';
+    }
+
+    return $output;
+}
+add_shortcode('category_products', 'category_products_shortcode');
