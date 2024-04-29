@@ -323,3 +323,46 @@ function category_products_shortcode($atts) {
     return $output;
 }
 add_shortcode('category_products', 'category_products_shortcode');
+
+
+
+
+//Shortcode to dispaly the produtcs on sale
+function products_on_sale_shortcode( $atts ) {
+    $args = array(
+        'post_type'      => 'product',
+        'posts_per_page' => -1,
+        'meta_query'     => array(
+            'relation' => 'AND',
+            array(
+                'key'           => '_sale_price',
+                'value'         => 0,
+                'compare'       => '>',
+                'type'          => 'NUMERIC'
+            ),
+            array(
+                'key'           => '_stock_status',
+                'value'         => 'instock',
+                'compare'       => '='
+            )
+        )
+    );
+
+    $products = new WP_Query( $args );
+
+    ob_start();
+    if ( $products->have_posts() ) {
+        echo '<ul>';
+        while ( $products->have_posts() ) {
+            $products->the_post();
+            echo '<li><a href="' . get_permalink() . '">' . get_the_title() . '</a></li>';
+        }
+        echo '</ul>';
+    } else {
+        echo 'No products on sale.';
+    }
+    wp_reset_postdata();
+
+    return ob_get_clean();
+}
+add_shortcode( 'products_on_sale', 'products_on_sale_shortcode' );
