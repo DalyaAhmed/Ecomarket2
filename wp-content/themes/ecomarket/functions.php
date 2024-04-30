@@ -352,17 +352,17 @@ function products_on_sale_shortcode( $atts ) {
 
     ob_start();
     if ( $products->have_posts() ) {
-        echo '<ul class="products">';
         while ( $products->have_posts() ) {
             $products->the_post();
             global $product;
 
-            echo '<li class="product">';
+            echo '<div class="product">';
+            echo '<a href="' . get_permalink() . '">' . get_the_post_thumbnail( get_the_ID(), 'thumbnail' ) . '</a>';
             echo '<a href="' . get_permalink() . '">' . get_the_title() . '</a>';
+            woocommerce_template_loop_price();
             woocommerce_template_loop_add_to_cart();
-            echo '</li>';
+            echo '</div>';
         }
-        echo '</ul>';
     } else {
         echo 'No products on sale.';
     }
@@ -371,3 +371,4 @@ function products_on_sale_shortcode( $atts ) {
     return ob_get_clean();
 }
 add_shortcode( 'products_on_sale', 'products_on_sale_shortcode' );
+
